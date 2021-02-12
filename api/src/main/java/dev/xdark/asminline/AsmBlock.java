@@ -289,6 +289,30 @@ public interface AsmBlock {
 
   AsmBlock putfield(String owner, String name, String desc);
 
+  AsmBlock getstatic(Class<?> owner, String name, String desc);
+
+  AsmBlock putstatic(Class<?> owner, String name, String desc);
+
+  AsmBlock getfield(Class<?> owner, String name, String desc);
+
+  AsmBlock putfield(Class<?> owner, String name, String desc);
+
+  AsmBlock getstatic(String owner, String name, Class<?> desc);
+
+  AsmBlock putstatic(String owner, String name, Class<?> desc);
+
+  AsmBlock getfield(String owner, String name, Class<?> desc);
+
+  AsmBlock putfield(String owner, String name, Class<?> desc);
+
+  AsmBlock getstatic(Class<?> owner, String name, Class<?> desc);
+
+  AsmBlock putstatic(Class<?> owner, String name, Class<?> desc);
+
+  AsmBlock getfield(Class<?> owner, String name, Class<?> desc);
+
+  AsmBlock putfield(Class<?> owner, String name, Class<?> desc);
+
   AsmBlock invokevirtual(String owner, String name, String desc);
 
   AsmBlock invokespecial(String owner, String name, String desc);

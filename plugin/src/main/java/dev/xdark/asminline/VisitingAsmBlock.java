@@ -829,6 +829,66 @@ public final class VisitingAsmBlock implements AsmBlock {
   }
 
   @Override
+  public AsmBlock getstatic(Class<?> owner, String name, String desc) {
+    return getstatic(internalName(owner), name,  desc);
+  }
+
+  @Override
+  public AsmBlock putstatic(Class<?> owner, String name, String desc) {
+    return putstatic(internalName(owner), name,  desc);
+  }
+
+  @Override
+  public AsmBlock getfield(Class<?> owner, String name, String desc) {
+    return getfield(internalName(owner), name,  desc);
+  }
+
+  @Override
+  public AsmBlock putfield(Class<?> owner, String name, String desc) {
+    return putfield(internalName(owner), name,  desc);
+  }
+
+  @Override
+  public AsmBlock getstatic(String owner, String name, Class<?> desc) {
+    return getstatic(owner, name,  fieldDescriptor(desc));
+  }
+
+  @Override
+  public AsmBlock putstatic(String owner, String name, Class<?> desc) {
+    return putstatic(owner, name,  fieldDescriptor(desc));
+  }
+
+  @Override
+  public AsmBlock getfield(String owner, String name, Class<?> desc) {
+    return getfield(owner, name,  fieldDescriptor(desc));
+  }
+
+  @Override
+  public AsmBlock putfield(String owner, String name, Class<?> desc) {
+    return putfield(owner, name,  fieldDescriptor(desc));
+  }
+
+  @Override
+  public AsmBlock getstatic(Class<?> owner, String name, Class<?> desc) {
+    return getstatic(internalName(owner), name,  fieldDescriptor(desc));
+  }
+
+  @Override
+  public AsmBlock putstatic(Class<?> owner, String name, Class<?> desc) {
+    return putstatic(internalName(owner), name,  fieldDescriptor(desc));
+  }
+
+  @Override
+  public AsmBlock getfield(Class<?> owner, String name, Class<?> desc) {
+    return getfield(internalName(owner), name,  fieldDescriptor(desc));
+  }
+
+  @Override
+  public AsmBlock putfield(Class<?> owner, String name, Class<?> desc) {
+    return putfield(internalName(owner), name,  internalName(desc));
+  }
+
+  @Override
   public AsmBlock invokevirtual(String owner, String name, String desc) {
     visitor.visitMethodInsn(INVOKEVIRTUAL, owner, name, desc, false);
     return this;
@@ -977,5 +1037,38 @@ public final class VisitingAsmBlock implements AsmBlock {
 
   private static String internalName(Class<?> c) {
     return c.getName().replace('.', '/');
+  }
+
+  private static String fieldDescriptor(Class<?> c) {
+    if (c.isPrimitive()) {
+      return getPrimitiveInternal(c);
+    }
+    String name = c.getName().replace('.', '/');
+    if (c.isArray()) {
+      return name;
+    }
+    return 'L' + name + ';';
+  }
+
+  private static String getPrimitiveInternal(Class<?> c) {
+    if (c == Long.TYPE) {
+      return "J";
+    } else if (c == Double.TYPE) {
+      return "D";
+    } else if (c == Integer.TYPE) {
+      return "I";
+    } else if (c == Float.TYPE) {
+      return "F";
+    } else if (c == Short.TYPE) {
+      return "S";
+    } else if (c == Character.TYPE) {
+      return "C";
+    } else if (c == Byte.TYPE) {
+      return "B";
+    } else if (c == Boolean.TYPE) {
+      return "Z";
+    } else {
+      throw new IllegalArgumentException("Unknown primitive: " + c);
+    }
   }
 }
