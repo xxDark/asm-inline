@@ -1,0 +1,23 @@
+allprojects {
+    group 'dev.xdark.asm-inline'
+    version '1.0'
+}
+
+subprojects {
+    apply plugin: 'java'
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+    }
+
+    project.ext {
+        asm = 'org.ow2.asm:asm:9.0'
+    }
+}
