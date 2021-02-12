@@ -34,15 +34,17 @@ class AsmInlinePlugin implements Plugin<Project> {
                                         if (name.endsWith(".class")) {
                                             def bytes = Files.readAllBytes(file)
                                             def reader = new ClassReader(bytes)
-                                            def writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES) {
-                                                @Override
-                                                protected ClassLoader getClassLoader() {
-                                                    return loader
-                                                }
-                                            }
-                                            def inliner = new AsmInliner(writer, loader)
+                                            def tmp = new ClassWriter(reader, 0)
+                                            def inliner = new AsmInliner(tmp, loader)
                                             reader.accept(inliner, 0)
                                             if (inliner.rewrite) {
+                                                def writer = new ClassWriter(reader, ClassWriter.COMPUTE_FRAMES) {
+                                                    @Override
+                                                    protected ClassLoader getClassLoader() {
+                                                        return loader
+                                                    }
+                                                }
+                                                new ClassReader(tmp.toByteArray()).accept(writer, 0)
                                                 Files.write(file, writer.toByteArray(), StandardOpenOption.TRUNCATE_EXISTING)
                                             }
                                         }
