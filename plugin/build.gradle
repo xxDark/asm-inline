@@ -12,6 +12,7 @@ dependencies {
     shade asm
     compileOnly gradleApi()
     shade project(':api')
+    compileOnly files("${System.getenv('JAVA_HOME')}/lib/tools.jar")
 }
 
 gradlePlugin {

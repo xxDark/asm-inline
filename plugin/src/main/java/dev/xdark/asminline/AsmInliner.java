@@ -23,6 +23,7 @@ public final class AsmInliner extends ClassVisitor {
   private static final MethodType BLOCK_TYPE = MethodType.methodType(Void.TYPE, AsmBlock.class);
   private static final Lookup LOOKUP;
   private final ClassLoader loader;
+  boolean rewrite;
 
   public AsmInliner(ClassVisitor classVisitor, ClassLoader loader) {
     super(Opcodes.ASM9, classVisitor);
@@ -60,6 +61,7 @@ public final class AsmInliner extends ClassVisitor {
                     Class<?> klass = loader.loadClass(handle.getOwner().replace('/', '.'));
                     AsmBlock block = new VisitingAsmBlock(this);
                     LOOKUP.findStatic(klass, handle.getName(), BLOCK_TYPE).invokeExact(block);
+                    AsmInliner.this.rewrite = true;
                   } catch (Throwable e) {
                     throw new RuntimeException(e);
                   }

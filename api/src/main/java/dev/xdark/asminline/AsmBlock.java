@@ -366,4 +366,12 @@ public interface AsmBlock {
 
   // v != null
   AsmBlock ifnonnull(Label label);
+
+  AsmBlock label(Label label);
+
+  AsmBlock $try(Label start, Label end, Label handler, String type);
+
+  AsmBlock line(int line, Label start);
+
+  AsmBlock parameter(String name, int access);
 }
