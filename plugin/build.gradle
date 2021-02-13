@@ -27,6 +27,7 @@ jar {
     from {
         configurations.shade.collect { zipTree(it) }
     }
+    exclude('sun', 'jdk')
 }
 
 sourceSets {
