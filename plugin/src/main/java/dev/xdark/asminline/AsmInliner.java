@@ -1,7 +1,8 @@
 package dev.xdark.asminline;
 
-import java.lang.invoke.MethodType;
+import java.util.Map;
 import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -18,13 +19,23 @@ public final class AsmInliner extends ClassVisitor {
       "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;",
       false
   );
-  private static final MethodType BLOCK_TYPE = MethodType.methodType(Void.TYPE, AsmBlock.class);
   private final ClassLoader loader;
+  private final Map<MethodInfo, ClassWriter> methods;
+  private String name;
   boolean rewrite;
 
-  public AsmInliner(ClassVisitor classVisitor, ClassLoader loader) {
+  public AsmInliner(ClassVisitor classVisitor, ClassLoader loader,
+      Map<MethodInfo, ClassWriter> methods) {
     super(Opcodes.ASM9, classVisitor);
     this.loader = loader;
+    this.methods = methods;
+  }
+
+  @Override
+  public void visit(int version, int access, String name, String signature, String superName,
+      String[] interfaces) {
+    this.name = name;
+    super.visit(version, access, name, signature, superName, interfaces);
   }
 
   @Override
@@ -55,9 +66,11 @@ public final class AsmInliner extends ClassVisitor {
                 Type type = Type.getMethodType(handle.getDesc());
                 if (ASM_BLOCK.equals(type)) {
                   try {
-                    Class<?> klass = loader.loadClass(handle.getOwner().replace('/', '.'));
+                    String methodName = handle.getName();
+                    Class<?> klass = generateInlineClass(new MethodInfo(methodName, Constants.BLOCK_TYPE_DESC));
                     AsmBlock block = new VisitingAsmBlock(this);
-                    LookupUtil.lookup().findStatic(klass, handle.getName(), BLOCK_TYPE).invokeExact(block);
+                    LookupUtil.lookup().findStatic(klass, methodName, Constants.BLOCK_TYPE)
+                        .invokeExact(block);
                     AsmInliner.this.rewrite = true;
                   } catch (Throwable e) {
                     throw new RuntimeException(e);
@@ -72,5 +85,14 @@ public final class AsmInliner extends ClassVisitor {
             bootstrapMethodArguments);
       }
     };
+  }
+
+  private Class<?> generateInlineClass(MethodInfo info) {
+    ClassWriter writer = methods.get(info);
+    if (writer == null) {
+      throw new IllegalArgumentException("Unknown method: " + name + '.' + info.name + info.desc);
+    }
+    byte[] classBytes = writer.toByteArray();
+    return ClassDefiner.INSTANCE.defineClass(loader, classBytes, 0, classBytes.length);
   }
 }

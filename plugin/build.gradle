@@ -25,6 +25,14 @@ gradlePlugin {
 
 jar {
     from {
-        configurations.shade.collect {zipTree(it)}
+        configurations.shade.collect { zipTree(it) }
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs 'src/main/java', 'src/main/compile'
+        }
     }
 }
