@@ -1,8 +1,6 @@
 package dev.xdark.asminline;
 
-import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.invoke.MethodType;
-import java.lang.reflect.Field;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.MethodVisitor;
@@ -21,7 +19,6 @@ public final class AsmInliner extends ClassVisitor {
       false
   );
   private static final MethodType BLOCK_TYPE = MethodType.methodType(Void.TYPE, AsmBlock.class);
-  private static final Lookup LOOKUP;
   private final ClassLoader loader;
   boolean rewrite;
 
@@ -60,7 +57,7 @@ public final class AsmInliner extends ClassVisitor {
                   try {
                     Class<?> klass = loader.loadClass(handle.getOwner().replace('/', '.'));
                     AsmBlock block = new VisitingAsmBlock(this);
-                    LOOKUP.findStatic(klass, handle.getName(), BLOCK_TYPE).invokeExact(block);
+                    LookupUtil.lookup().findStatic(klass, handle.getName(), BLOCK_TYPE).invokeExact(block);
                     AsmInliner.this.rewrite = true;
                   } catch (Throwable e) {
                     throw new RuntimeException(e);
@@ -75,15 +72,5 @@ public final class AsmInliner extends ClassVisitor {
             bootstrapMethodArguments);
       }
     };
-  }
-
-  static {
-    try {
-      Field field = Lookup.class.getDeclaredField("IMPL_LOOKUP");
-      field.setAccessible(true);
-      LOOKUP = (Lookup) field.get(null);
-    } catch (IllegalAccessException | NoSuchFieldException ex) {
-      throw new ExceptionInInitializerError(ex);
-    }
   }
 }

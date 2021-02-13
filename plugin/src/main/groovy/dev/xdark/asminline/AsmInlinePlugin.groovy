@@ -20,13 +20,12 @@ class AsmInlinePlugin implements Plugin<Project> {
         project.afterEvaluate {
             project.tasks.withType(JavaCompile) { compile ->
                 compile.doLast {
-                    def dest = compile.destinationDir.toPath()
+                    def dest = compile.destinationDir.toPath() as Path
                     def classpath = compile.classpath.getFiles()
                     def urls = classpath.collect { it.toURI().toURL() }
                     urls += dest.toUri().toURL()
-                    URLClassLoader.newInstance(urls.toArray(new URL[0]), this.getClass().getClassLoader())
+                    URLClassLoader.newInstance(urls as URL[], this.getClass().getClassLoader())
                             .withCloseable { loader ->
-                                //noinspection GroovyAssignabilityCheck
                                 Files.walkFileTree(dest, new SimpleFileVisitor<Path>() {
                                     @Override
                                     FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
@@ -38,12 +37,13 @@ class AsmInlinePlugin implements Plugin<Project> {
                                             def inliner = new AsmInliner(tmp, loader)
                                             reader.accept(inliner, 0)
                                             if (inliner.rewrite) {
-                                                def writer = new ClassWriter(reader, ClassWriter.COMPUTE_FRAMES) {
+                                                def writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES) {
                                                     @Override
                                                     protected ClassLoader getClassLoader() {
                                                         return loader
                                                     }
                                                 }
+                                                AsmUtil.copySymbolTable(tmp, writer)
                                                 new ClassReader(tmp.toByteArray()).accept(writer, 0)
                                                 Files.write(file, writer.toByteArray(), StandardOpenOption.TRUNCATE_EXISTING)
                                             }
