@@ -279,6 +279,8 @@ public interface AsmBlock {
 
   AsmBlock dreturn();
 
+  AsmBlock areturn();
+
   AsmBlock $return();
 
   AsmBlock getstatic(String owner, String name, String desc);

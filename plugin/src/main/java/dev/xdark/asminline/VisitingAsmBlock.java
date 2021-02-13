@@ -680,6 +680,11 @@ public final class VisitingAsmBlock implements AsmBlock {
   }
 
   @Override
+  public AsmBlock areturn() {
+    return visitInsn(ARETURN);
+  }
+
+  @Override
   public AsmBlock $return() {
     return visitInsn(RETURN);
   }
