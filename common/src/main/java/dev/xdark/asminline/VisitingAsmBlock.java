@@ -770,7 +770,7 @@ public final class VisitingAsmBlock implements AsmBlock {
 
   @Override
   public AsmBlock putfield(Class<?> owner, String name, Class<?> desc) {
-    return putfield(internalName(owner), name,  internalName(desc));
+    return putfield(internalName(owner), name,  fieldDescriptor(desc));
   }
 
   @Override
@@ -855,6 +855,18 @@ public final class VisitingAsmBlock implements AsmBlock {
   }
 
   @Override
+  public AsmBlock $new(Class<?> type) {
+    visitor.visitTypeInsn(NEW, Type.getType(type).getInternalName());
+    return this;
+  }
+
+  @Override
+  public AsmBlock $new(Type type) {
+    visitor.visitTypeInsn(NEW, type.getInternalName());
+    return this;
+  }
+
+  @Override
   public AsmBlock newarray(int type) {
     visitor.visitIntInsn(NEWARRAY, type);
     return this;
@@ -935,6 +947,208 @@ public final class VisitingAsmBlock implements AsmBlock {
   @Override
   public AsmBlock parameter(String name, int access) {
     visitor.visitParameter(name, access);
+    return this;
+  }
+
+  @Override
+  public AsmBlock array(long[] array, int off, int len) {
+    newarray(T_LONG);
+    while (off < len) {
+      long v = array[off];
+      dup().$int(off++).$long(v).lastore();
+    }
+    return this;
+  }
+
+  @Override
+  public AsmBlock array(double[] array, int off, int len) {
+    $int(len - off);
+    newarray(T_DOUBLE);
+    while (off < len) {
+      double v = array[off];
+      dup().$int(off++).$double(v).dastore();
+    }
+    return this;
+  }
+
+  @Override
+  public AsmBlock array(int[] array, int off, int len) {
+    $int(len - off);
+    newarray(T_INT);
+    while (off < len) {
+      int v = array[off];
+      dup().$int(off++).$int(v).iastore();
+    }
+    return this;
+  }
+
+  @Override
+  public AsmBlock array(float[] array, int off, int len) {
+    $int(len - off);
+    newarray(T_FLOAT);
+    while (off < len) {
+      float v = array[off];
+      dup().$int(off++).$float(v).fastore();
+    }
+    return this;
+  }
+
+  @Override
+  public AsmBlock array(char[] array, int off, int len) {
+    $int(len - off);
+    newarray(T_CHAR);
+    while (off < len) {
+      char v = array[off];
+      dup().$int(off++).$int(v).castore();
+    }
+    return this;
+  }
+
+  @Override
+  public AsmBlock array(short[] array, int off, int len) {
+    $int(len - off);
+    newarray(T_SHORT);
+    while (off < len) {
+      short v = array[off];
+      dup().$int(off++).$int(v).sastore();
+    }
+    return this;
+  }
+
+  @Override
+  public AsmBlock array(byte[] array, int off, int len) {
+    $int(len - off);
+    newarray(T_BYTE);
+    while (off < len) {
+      byte v = array[off];
+      dup().$int(off++).$int(v).bastore();
+    }
+    return this;
+  }
+
+  @Override
+  public AsmBlock array(boolean[] array, int off, int len) {
+    $int(len - off);
+    newarray(T_BOOLEAN);
+    while (off < len) {
+      boolean v = array[off];
+      dup().$int(off++).$int(v ? 1 : 0).bastore();
+    }
+    return this;
+  }
+
+  @Override
+  public <T> AsmBlock array(T[] array, int off, int len, BiIntConsumer<T> producer) {
+    $int(len - off);
+    visitor.visitTypeInsn(ANEWARRAY, Type.getInternalName(array.getClass().getComponentType()));
+    while (off < len) {
+      T v = array[off];
+      int idx = off++;
+      dup().$int(idx);
+      producer.accept(idx, v);
+      aastore();
+    }
+    return this;
+  }
+
+  @Override
+  public AsmBlock array(long[] array) {
+    $int(array.length);
+    newarray(T_LONG);
+    for (int i = 0, j = array.length; i < j; i++) {
+      long v = array[i];
+      dup().$int(i).$long(v).lastore();
+    }
+    return this;
+  }
+
+  @Override
+  public AsmBlock array(double[] array) {
+    $int(array.length);
+    newarray(T_DOUBLE);
+    for (int i = 0, j = array.length; i < j; i++) {
+      double v = array[i];
+      dup().$int(i).$double(v).dastore();
+    }
+    return this;
+  }
+
+  @Override
+  public AsmBlock array(int[] array) {
+    $int(array.length);
+    newarray(T_INT);
+    for (int i = 0, j = array.length; i < j; i++) {
+      int v = array[i];
+      dup().$int(i).$int(v).iastore();
+    }
+    return this;
+  }
+
+  @Override
+  public AsmBlock array(float[] array) {
+    $int(array.length);
+    newarray(T_FLOAT);
+    for (int i = 0, j = array.length; i < j; i++) {
+      float v = array[i];
+      dup().$int(i).$float(v).fastore();
+    }
+    return this;
+  }
+
+  @Override
+  public AsmBlock array(char[] array) {
+    $int(array.length);
+    newarray(T_CHAR);
+    for (int i = 0, j = array.length; i < j; i++) {
+      char v = array[i];
+      dup().$int(i).$int(v).castore();
+    }
+    return this;
+  }
+
+  @Override
+  public AsmBlock array(short[] array) {
+    $int(array.length);
+    newarray(T_SHORT);
+    for (int i = 0, j = array.length; i < j; i++) {
+      short v = array[i];
+      dup().$int(i).$int(v).sastore();
+    }
+    return this;
+  }
+
+  @Override
+  public AsmBlock array(byte[] array) {
+    $int(array.length);
+    newarray(T_BYTE);
+    for (int i = 0, j = array.length; i < j; i++) {
+      byte v = array[i];
+      dup().$int(i).$int(v).bastore();
+    }
+    return this;
+  }
+
+  @Override
+  public AsmBlock array(boolean[] array) {
+    $int(array.length);
+    newarray(T_BOOLEAN);
+    for (int i = 0, j = array.length; i < j; i++) {
+      boolean v = array[i];
+      dup().$int(i).$int(v ? 1 : 0).bastore();
+    }
+    return this;
+  }
+
+  @Override
+  public <T> AsmBlock array(T[] array, BiIntConsumer<T> producer) {
+    $int(array.length);
+    visitor.visitTypeInsn(ANEWARRAY, Type.getInternalName(array.getClass().getComponentType()));
+    for (int i = 0, j = array.length; i < j; i++) {
+      T v = array[i];
+      dup().$int(i);
+      producer.accept(i, v);
+      aastore();
+    }
     return this;
   }
 

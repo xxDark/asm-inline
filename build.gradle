@@ -11,6 +11,11 @@ subprojects {
         mavenCentral()
     }
 
+    configurations {
+        shade
+        compileOnly.extendsFrom shade
+    }
+
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
     tasks.withType(JavaCompile) {

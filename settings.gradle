@@ -7,3 +7,6 @@ pluginManagement {
 rootProject.name = 'asm-inline'
 include 'api'
 include 'plugin'
+include 'standalone'
+include 'common'
+

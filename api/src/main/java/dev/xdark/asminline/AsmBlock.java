@@ -13,6 +13,42 @@ public interface AsmBlock {
     throw new UnsupportedOperationException("Must be replaced with bytecode");
   }
 
+  static long inlineJ(Consumer<AsmBlock> blocker) {
+    throw new UnsupportedOperationException("Must be replaced with bytecode");
+  }
+
+  static double inlineD(Consumer<AsmBlock> blocker) {
+    throw new UnsupportedOperationException("Must be replaced with bytecode");
+  }
+
+  static int inlineI(Consumer<AsmBlock> blocker) {
+    throw new UnsupportedOperationException("Must be replaced with bytecode");
+  }
+
+  static float inlineF(Consumer<AsmBlock> blocker) {
+    throw new UnsupportedOperationException("Must be replaced with bytecode");
+  }
+
+  static char inlineC(Consumer<AsmBlock> blocker) {
+    throw new UnsupportedOperationException("Must be replaced with bytecode");
+  }
+
+  static short inlineS(Consumer<AsmBlock> blocker) {
+    throw new UnsupportedOperationException("Must be replaced with bytecode");
+  }
+
+  static byte inlineB(Consumer<AsmBlock> blocker) {
+    throw new UnsupportedOperationException("Must be replaced with bytecode");
+  }
+
+  static boolean inlineZ(Consumer<AsmBlock> blocker) {
+    throw new UnsupportedOperationException("Must be replaced with bytecode");
+  }
+
+  static <V> V inlineA(Consumer<AsmBlock> blocker) {
+    throw new UnsupportedOperationException("Must be replaced with bytecode");
+  }
+
   AsmBlock nop();
 
   AsmBlock $null();
@@ -345,6 +381,10 @@ public interface AsmBlock {
 
   AsmBlock $new(String type);
 
+  AsmBlock $new(Class<?> type);
+
+  AsmBlock $new(Type type);
+
   AsmBlock newarray(int type);
 
   AsmBlock newarray(String type);
@@ -376,4 +416,40 @@ public interface AsmBlock {
   AsmBlock line(int line, Label start);
 
   AsmBlock parameter(String name, int access);
+
+  AsmBlock array(long[] array, int off, int len);
+
+  AsmBlock array(double[] array, int off, int len);
+
+  AsmBlock array(int[] array, int off, int len);
+
+  AsmBlock array(float[] array, int off, int len);
+
+  AsmBlock array(char[] array, int off, int len);
+
+  AsmBlock array(short[] array, int off, int len);
+
+  AsmBlock array(byte[] array, int off, int len);
+
+  AsmBlock array(boolean[] array, int off, int len);
+
+  <T> AsmBlock array(T[] array, int off, int len, BiIntConsumer<T> producer);
+
+  AsmBlock array(long[] array);
+
+  AsmBlock array(double[] array);
+
+  AsmBlock array(int[] array);
+
+  AsmBlock array(float[] array);
+
+  AsmBlock array(char[] array);
+
+  AsmBlock array(short[] array);
+
+  AsmBlock array(byte[] array);
+
+  AsmBlock array(boolean[] array);
+
+  <T> AsmBlock array(T[] array, BiIntConsumer<T> producer);
 }

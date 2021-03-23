@@ -33,7 +33,7 @@ final class BlocksCollector extends ClassVisitor {
       ClassWriter writer = new ClassWriter(0);
       writer.visit(version, Opcodes.ACC_PUBLIC,
           this.name + '$' + name + '$' + System.currentTimeMillis(), null,
-          "java/lang/Object", null);
+          MagicBridgeGenerator.CLASS_NAME, null);
       MethodVisitor proxy = writer.visitMethod(access, name, descriptor, signature, exceptions);
       writers.put(new MethodInfo(name, descriptor), writer);
       return proxy;

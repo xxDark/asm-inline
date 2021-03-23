@@ -1,6 +1,7 @@
 package dev.xdark.asminline;
 
 import java.util.Map;
+import java.util.function.Consumer;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Handle;
@@ -19,6 +20,7 @@ public final class AsmInliner extends ClassVisitor {
       "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;",
       false
   );
+  private static final Type CONSUMER = Type.getType(Consumer.class);
   private final ClassLoader loader;
   private final Map<MethodInfo, ClassWriter> methods;
   private String name;
@@ -41,14 +43,18 @@ public final class AsmInliner extends ClassVisitor {
   @Override
   public MethodVisitor visitMethod(int access, String name, String descriptor, String signature,
       String[] exceptions) {
+    if (methods.containsKey(new MethodInfo(name, descriptor))) {
+      return null;
+    }
+
     return new MethodVisitor(Opcodes.ASM9,
         super.visitMethod(access, name, descriptor, signature, exceptions)) {
       @Override
       public void visitMethodInsn(int opcode, String owner, String name, String descriptor,
           boolean isInterface) {
         if (opcode == Opcodes.INVOKESTATIC && owner.equals("dev/xdark/asminline/AsmBlock")
-            && "inline".equals(name)
-            && "(Ljava/util/function/Consumer;)V".equals(descriptor)) {
+            && isInlineName(name)
+            && isInlineDescriptor(descriptor)) {
           return;
         }
         super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
@@ -67,7 +73,8 @@ public final class AsmInliner extends ClassVisitor {
                 if (ASM_BLOCK.equals(type)) {
                   try {
                     String methodName = handle.getName();
-                    Class<?> klass = generateInlineClass(new MethodInfo(methodName, Constants.BLOCK_TYPE_DESC));
+                    Class<?> klass = generateInlineClass(
+                        new MethodInfo(methodName, Constants.BLOCK_TYPE_DESC));
                     AsmBlock block = new VisitingAsmBlock(this);
                     LookupUtil.lookup().findStatic(klass, methodName, Constants.BLOCK_TYPE)
                         .invokeExact(block);
@@ -83,6 +90,26 @@ public final class AsmInliner extends ClassVisitor {
         }
         super.visitInvokeDynamicInsn(name, descriptor, bootstrapMethodHandle,
             bootstrapMethodArguments);
+      }
+
+      private boolean isInlineName(String name) {
+        if (name.startsWith("inline")) {
+          name = name.substring("inline".length());
+          if (name.isEmpty()) {
+            return true;
+          }
+          if (name.length() != 1) {
+            return false;
+          }
+          char c = name.charAt(0);
+          return c == 'J' || c == 'D' || c == 'I' || c == 'F' || c == 'C' || c == 'S' || c == 'B' || c == 'Z' || c == 'A';
+        }
+        return false;
+      }
+
+      private boolean isInlineDescriptor(String desc) {
+        Type[] parameters = Type.getArgumentTypes(desc);
+        return parameters.length == 1 && CONSUMER.equals(parameters[0]);
       }
     };
   }
