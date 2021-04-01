@@ -25,6 +25,8 @@ import org.objectweb.asm.ClassWriter;
 
 public final class PatchProcessor {
 
+  private static final int FLAGS = Integer.getInteger("asminline.writeflags", ClassWriter.COMPUTE_FRAMES);
+
   private PatchProcessor() {
   }
 
@@ -39,7 +41,7 @@ public final class PatchProcessor {
     AsmInliner inliner = new AsmInliner(rewriter, loader, methods);
     reader.accept(inliner, 0);
     if (inliner.rewrite) {
-      ClassWriter writer = new LoaderBoundClassWriter(ClassWriter.COMPUTE_FRAMES, loader);
+      ClassWriter writer = new LoaderBoundClassWriter(FLAGS, loader);
       AsmUtil.copySymbolTable(rewriter, writer);
       new ClassReader(rewriter.toByteArray()).accept(writer, 0);
       return writer.toByteArray();
