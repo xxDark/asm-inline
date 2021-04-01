@@ -1,5 +1,3 @@
-apply plugin: 'maven-publish'
-
 dependencies {
     compileOnly asm
 }
