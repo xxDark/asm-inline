@@ -1,6 +1,5 @@
 apply plugin: 'groovy'
 apply plugin: 'java-gradle-plugin'
-apply plugin: 'maven-publish'
 
 dependencies {
     compileOnly 'org.codehaus.groovy:groovy-all:2.5.12'
