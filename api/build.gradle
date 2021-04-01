@@ -3,17 +3,3 @@ apply plugin: 'maven-publish'
 dependencies {
     compileOnly asm
 }
-
-publishing {
-    repositories {
-        mavenLocal()
-    }
-    publications {
-        maven(MavenPublication) {
-            groupId project.group
-            artifactId project.name
-            version project.version
-            artifact jar
-        }
-    }
-}

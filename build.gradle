@@ -25,4 +25,28 @@ subprojects {
     project.ext {
         asm = 'org.ow2.asm:asm:9.0'
     }
+
+    publishing {
+        repositories {
+            if (System.getenv('CI') == null) {
+                mavenLocal()
+            } else {
+                maven {
+                    url = 'https://repo.implario.dev/public/'
+                    credentials {
+                        username System.getenv('IMPLARIO_REPO_USER')
+                        password System.getenv('IMPLARIO_REPO_PASSWORD')
+                    }
+                }
+            }
+        }
+        publications {
+            maven(MavenPublication) {
+                groupId project.group
+                artifactId project.name
+                version project.version
+                from components.java
+            }
+        }
+    }
 }
