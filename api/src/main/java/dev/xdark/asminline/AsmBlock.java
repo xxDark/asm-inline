@@ -379,6 +379,10 @@ public interface AsmBlock {
 
   AsmBlock invokestatic(Class<?> owner, String name, MethodType type);
 
+  AsmBlock invokeinterface(Class<?> owner, String name, String desc);
+
+  AsmBlock invokeinterface(Class<?> owner, String name, MethodType type);
+
   AsmBlock $new(String type);
 
   AsmBlock $new(Class<?> type);

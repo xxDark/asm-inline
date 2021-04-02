@@ -843,6 +843,16 @@ public final class VisitingAsmBlock implements AsmBlock {
   }
 
   @Override
+  public AsmBlock invokeinterface(Class<?> owner, String name, String desc) {
+    return invokeinterface(internalName(owner), name, desc);
+  }
+
+  @Override
+  public AsmBlock invokeinterface(Class<?> owner, String name, MethodType type) {
+    return invokeinterface(internalName(owner), name, type.toMethodDescriptorString());
+  }
+
+  @Override
   public AsmBlock invokedynamic(String name, String desc, Handle bootstrap, Object... args) {
     visitor.visitInvokeDynamicInsn(name, desc, bootstrap, args);
     return this;
