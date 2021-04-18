@@ -1,6 +1,6 @@
 allprojects {
     group 'dev.xdark.asm-inline'
-    version '1.0'
+    version '1.0-SNAPSHOT'
 }
 
 subprojects {
@@ -8,7 +8,6 @@ subprojects {
     apply plugin: 'maven-publish'
 
     repositories {
-        mavenLocal()
         mavenCentral()
     }
 

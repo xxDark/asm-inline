@@ -25,8 +25,6 @@ import org.objectweb.asm.ClassWriter;
 
 public final class PatchProcessor {
 
-  private static final int FLAGS = Integer.getInteger("asminline.writeflags", ClassWriter.COMPUTE_FRAMES);
-
   private PatchProcessor() {
   }
 
@@ -41,7 +39,7 @@ public final class PatchProcessor {
     AsmInliner inliner = new AsmInliner(rewriter, loader, methods);
     reader.accept(inliner, 0);
     if (inliner.rewrite) {
-      ClassWriter writer = new LoaderBoundClassWriter(FLAGS, loader);
+      ClassWriter writer = new LoaderBoundClassWriter(Integer.getInteger("asminline.writeflags", ClassWriter.COMPUTE_FRAMES), loader);
       AsmUtil.copySymbolTable(rewriter, writer);
       new ClassReader(rewriter.toByteArray()).accept(writer, 0);
       return writer.toByteArray();
@@ -96,10 +94,12 @@ public final class PatchProcessor {
       FileSystemProvider.installedProviders();
       Field field = FileSystemProvider.class.getDeclaredField("installedProviders");
       field.setAccessible(true);
-      List<FileSystemProvider> providers = new ArrayList<>(
-          (List<FileSystemProvider>) field.get(null));
-      providers.add(0, new JarFileSystemProvider());
-      field.set(null, Collections.unmodifiableList(providers));
+      List<FileSystemProvider> providers =  (List<FileSystemProvider>) field.get(null);
+      if (!(providers.get(0) instanceof JarFileSystemProvider)) {
+        providers = new ArrayList<>(providers);
+        providers.add(0, new JarFileSystemProvider());
+        field.set(null, Collections.unmodifiableList(providers));
+      }
     } catch (IllegalAccessException | NoSuchFieldException ex) {
       throw new ExceptionInInitializerError(ex);
     }
